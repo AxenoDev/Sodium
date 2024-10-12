@@ -1,0 +1,9 @@
+name: Sodium
+version: '${version}'
+main: me.axeno.sodium.Sodium
+api-version: '1.20.1'
+
+permissions:
+  sodium.command.alert:
+    description: 'Alerte un joueur'
+    default: op

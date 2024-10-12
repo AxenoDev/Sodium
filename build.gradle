@@ -1,0 +1,72 @@
+plugins {
+    id 'idea'
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'me.axeno.sodium'
+version = "GIT-"+System.getenv("GITHUB_SHA") ?: "unknown"
+
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.purpurmc.org/snapshots" }
+    maven { url = "https://jitpack.io" }
+}
+
+dependencies {
+    compileOnly "org.purpurmc.purpur:purpur-api:1.20.1-R0.1-SNAPSHOT"
+
+    implementation "org.jetbrains:annotations:24.1.0" // Jetbrains annotations (@NotNull, @Nullable)
+    implementation "com.github.Revxrsal.Lamp:common:3.2.1"
+    implementation "com.github.Revxrsal.Lamp:bukkit:3.2.1"
+    implementation "org.json:json:20231013"
+
+    compileOnly "org.projectlombok:lombok:1.18.34"
+    annotationProcessor "org.projectlombok:lombok:1.18.34"
+    testCompileOnly "org.projectlombok:lombok:1.18.34"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.34"
+
+}
+
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if(targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                "GIT-COMMIT" : System.getenv("GITHUB_SHA") ?: "unknown"
+        )
+    }
+    destinationDirectory.set(file("./builds/"))
+}
+
+shadowJar {
+    destinationDirectory.set(file("C:\\Users\\tbava\\Desktop\\sodium\\plugins"))
+    archiveFileName = "Sodium.jar"
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
